@@ -26,6 +26,12 @@ describe 'puppet::master::passenger', :type => :class do
           "12.04",
           "14.04"
         ]
+      },
+      {
+        "operatingsystem" => "Debian",
+        "operatingsystemrelease" => [
+          "7"
+        ]
       }
     ]
   }).each do |os, facts|
@@ -37,6 +43,12 @@ describe 'puppet::master::passenger', :type => :class do
           :domain => 'vogon.gal',
           :puppetversion => Puppet.version
         })
+      end
+      case facts[:operatingsystem]
+      when 'Debian'
+        vhost_cfg = 'puppetmaster'
+      when 'Ubuntu'
+        vhost_cfg = 'puppetmaster.conf'
       end
       it { is_expected.to compile.with_all_deps }
       if Puppet.version.to_f < 4.0
@@ -56,14 +68,14 @@ describe 'puppet::master::passenger', :type => :class do
               }).that_requires('Class[puppet::master::install]')
             end
 
-            it 'should remove the default puppetmaster.conf vhost file from /etc/apache2/sites-available' do
-              should contain_file('/etc/apache2/sites-available/puppetmaster.conf').with({
+            it "should remove the default #{vhost_cfg} vhost file from /etc/apache2/sites-available" do
+              should contain_file("/etc/apache2/sites-available/#{vhost_cfg}").with({
                 :ensure => 'absent'
                 }).that_requires('Package[puppetmaster-passenger]')
             end
 
-            it 'should remove the default puppetmaster.conf vhost file from /etc/apache2/sites-enabled' do
-              should contain_file('/etc/apache2/sites-enabled/puppetmaster.conf').with({
+            it "should remove the default #{vhost_cfg} vhost file from /etc/apache2/sites-enabled" do
+              should contain_file("/etc/apache2/sites-enabled/#{vhost_cfg}").with({
                 :ensure => 'absent'
                 }).that_requires('Package[puppetmaster-passenger]')
             end
@@ -104,7 +116,7 @@ describe 'puppet::master::passenger', :type => :class do
                   :rack_base_uris=>["/"],
                   :directories=>[{"path"=>"/usr/share/puppet/rack/puppetmasterd/", "options"=>"None"}],
                   :request_headers=>["unset X-Forwarded-For", "set X-SSL-Subject %{SSL_CLIENT_S_DN}e", "set X-Client-DN %{SSL_CLIENT_S_DN}e", "set X-Client-Verify %{SSL_CLIENT_VERIFY}e"]
-                }).that_subscribes_to('Class[puppet::master::install]')
+                }).that_subscribes_to('Class[puppet::master::install]').that_requires('Package[puppetmaster-passenger]')
               else
                 should contain_apache__vhost('constructorfleet.vogon.gal').with({
                   :docroot=>"/usr/share/puppet/rack/puppetmasterd/public/",
@@ -126,7 +138,7 @@ describe 'puppet::master::passenger', :type => :class do
                   :rack_base_uris=>["/"],
                   :directories=>[["path","/usr/share/puppet/rack/puppetmasterd/"], ["options","None"]],
                   :request_headers=>["unset X-Forwarded-For", "set X-SSL-Subject %{SSL_CLIENT_S_DN}e", "set X-Client-DN %{SSL_CLIENT_S_DN}e", "set X-Client-Verify %{SSL_CLIENT_VERIFY}e"]
-                }).that_subscribes_to('Class[puppet::master::install]')
+                }).that_subscribes_to('Class[puppet::master::install]').that_requires('Package[puppetmaster-passenger]')
               end
             end#end apache vhost
           end#no params

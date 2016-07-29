@@ -8,6 +8,11 @@ class puppet::master::passenger {
   $passenger_stat_throttle_rate = $::puppet::master::passenger_stat_throttle_rate
   $puppet_fqdn                  = $::puppet::master::puppet_fqdn
   $puppet_version               = $::puppet::master::puppet_version
+  if ($::operatingsystem == 'Debian') {
+    $vhost_cfg = 'puppetmaster'
+  } else {
+    $vhost_cfg = 'puppetmaster.conf'
+  }
 
   if ( versioncmp($::puppetversion, '4.0.0') < 0 ) {
     # only set this up on puppetversion < 4
@@ -17,12 +22,12 @@ class puppet::master::passenger {
       require => Class['puppet::master::install'],
     }
 
-    file { '/etc/apache2/sites-enabled/puppetmaster.conf':
+    file { "/etc/apache2/sites-enabled/${vhost_cfg}":
       ensure  => absent,
       require => Package['puppetmaster-passenger']
     }
 
-    file { '/etc/apache2/sites-available/puppetmaster.conf':
+    file { "/etc/apache2/sites-available/${vhost_cfg}":
       ensure  => absent,
       require => Package['puppetmaster-passenger']
     }
@@ -76,7 +81,8 @@ class puppet::master::passenger {
         'set X-Client-DN %{SSL_CLIENT_S_DN}e',
         'set X-Client-Verify %{SSL_CLIENT_VERIFY}e',
         ],
-      subscribe          => Class['puppet::master::install']
+      subscribe          => Class['puppet::master::install'],
+      require            => Package['puppetmaster-passenger'],
     }
   }
 }
