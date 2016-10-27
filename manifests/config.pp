@@ -13,6 +13,7 @@ class puppet::config {
   $logdest                        = $::puppet::logdest
   $preferred_serialization_format = $::puppet::preferred_serialization_format
   $puppet_server                  = $::puppet::puppet_server
+  $puppet_server_port             = $::puppet::puppet_server_port
   $reports                        = $::puppet::reports
   $runinterval                    = $::puppet::runinterval
   $splay                          = $::puppet::splay
@@ -73,6 +74,17 @@ class puppet::config {
     setting => 'server',
     value   => $puppet_server,
     require => Class['puppet::install'],
+  }
+  
+  if ($puppet_server_port != undef) {
+    ini_setting { 'puppet server_port':
+      ensure  => present,
+      path    => "${confdir}/puppet.conf",
+      section => 'main',
+      setting => 'masterport',
+      value   => $puppet_server_port,
+      require => Class['puppet::install'],
+    }
   }
 
   ini_setting { 'puppet use_srv_records':
