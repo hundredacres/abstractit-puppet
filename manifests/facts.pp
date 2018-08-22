@@ -19,7 +19,7 @@ class puppet::facts (
   file { "${facterbasepath}/facts.d/local.yaml":
     ensure  => file,
     owner   => 'root',
-    group   => 'root',
+    group   => $::puppet::defaults::puppet_group,
     mode    => '0640',
     content => template('puppet/local_facts.yaml.erb'),
   }

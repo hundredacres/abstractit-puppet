@@ -3,18 +3,20 @@
 # @puppet::profile::agent when declaring the puppet::profile::agent class
 #   include puppet::profile::agent
 #
-# @param allinone [Boolean] Default: false 
+# @param allinone [Boolean] Default: false
 #   Whether to use the new collections
-# @param agent_cron_hour [String] Default: '*' 
+# @param agent_cron_hour [String] Default: '*'
 #   The hour to run the agent cron. Valid values are `0-23`
 # @param agent_cron_min [String/Array] Default: 'two_times_an_hour'
 #   This param accepts any value accepted by the [cron native type](http://docs.puppetlabs.com/references/latest/type.html#cron-attribute-minute),
-#   as well as two special options: `two_times_an_hour`, and `four_times_an_hour`. 
+#   as well as two special options: `two_times_an_hour`, and `four_times_an_hour`.
 #   These specials use [fqdn_rand](http://docs.puppetlabs.com/references/latest/function.html#fqdnrand)
-#   to generate a random minute array on the selected interval. 
+#   to generate a random minute array on the selected interval.
 #   This should distribute the load more evenly on your puppetmasters.
 # @param ca_server [String] Default: undef
 #   Server to use as the CA server for all agents.
+# @param ca_port [String]
+#   Port to use as the CA server for all agents.
 # @param agent_version [String] Default: 'installed'
 #   Declares the version of the puppet-agent all-in-one package to install.
 # @param cfacter [Boolean] Default: false
@@ -28,7 +30,7 @@
 # @param enable_devel_repo [Boolean] Default: false
 #   This param will replace `devel_repo` in 2.x.
 #   It conveys to puppet::repo::apt whether or not to add the devel apt repo source.
-#   When `devel_repo` is false, `enable_devel_repo` is consulted for enablement. 
+#   When `devel_repo` is false, `enable_devel_repo` is consulted for enablement.
 #   This gives `devel_repo` backwards compatability at the cost of some confusion if you set `devel_repo` to true, and `enable_devel_repo` to false.
 # @param enable_mechanism [String] Default: 'service'
 #   A toggle which permits the option of running puppet as a service, or as a cron job.
@@ -64,16 +66,18 @@
 #   Whether or not to send reports
 # @param runinterval [String] Default: '30m'
 #   Sets the runinterval in puppet.conf
+# @param show_diff [Boolean] Default: false
+#   Sets the show_diff parameter in puppet.conf
 # @param splay [Boolean] Default: false
 #   Sets the splay parameter in puppet.conf
 # @param splaylimit [String] Default: undef
 #   Sets the splaylimit parameter in puppet.conf
 # @param structured_facts [Boolean] Default: false
-#   Sets whether or not to enable [structured_facts](http://docs.puppetlabs.com/facter/2.0/fact_overview.html) 
-#   by setting the [stringify_facts](http://docs.puppetlabs.com/references/3.6.latest/configuration.html#stringifyfacts) 
+#   Sets whether or not to enable [structured_facts](http://docs.puppetlabs.com/facter/2.0/fact_overview.html)
+#   by setting the [stringify_facts](http://docs.puppetlabs.com/references/3.6.latest/configuration.html#stringifyfacts)
 #   variable in puppet.conf.
 #   **It is important to note that this boolean operates in reverse.
-#   ** Setting stringify_facts to **false** is required to **permit** structured facts. 
+#   ** Setting stringify_facts to **false** is required to **permit** structured facts.
 #   This is why this parameter does not directly correlate with the configuration key.
 
 
@@ -83,6 +87,7 @@ class puppet::profile::agent (
   $agent_cron_min                 = 'two_times_an_hour',
   $agent_version                  = 'installed',
   $ca_server                      = undef,
+  $ca_port                        = undef,
   $cfacter                        = false,
   $collection                     = undef,
   $custom_facts                   = undef,
@@ -104,6 +109,7 @@ class puppet::profile::agent (
   $puppet_version                 = 'installed',
   $reports                        = true,
   $runinterval                    = '30m',
+  $show_diff                      = false,
   $splay                          = false,
   $splaylimit                     = undef,
   $structured_facts               = false,
@@ -114,6 +120,7 @@ class puppet::profile::agent (
     agent_cron_min                 => $agent_cron_min,
     agent_version                  => $agent_version,
     ca_server                      => $ca_server,
+    ca_port                        => $ca_port,
     cfacter                        => $cfacter,
     collection                     => $collection,
     custom_facts                   => $custom_facts,
@@ -135,6 +142,7 @@ class puppet::profile::agent (
     puppet_version                 => $puppet_version,
     reports                        => $reports,
     runinterval                    => $runinterval,
+    show_diff                      => $show_diff,
     splay                          => $splay,
     splaylimit                     => $splaylimit,
     structured_facts               => $structured_facts,

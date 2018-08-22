@@ -19,6 +19,8 @@
 #   Declares the version of the puppet-agent all-in-one package to install.
 # @param ca_server [String] Default: undef
 #   Server to use as the CA server for all agents.
+# @param ca_port [String]
+#   Port to use as the CA server for all agents.
 # @param cfacter [Boolean] Default: false
 #   Whether or not to use cfacter instead of facter.
 # @param collection [String] Default: undef
@@ -68,6 +70,8 @@
 #   Whether or not to send reports
 # @param runinterval [String] Default: '30m'
 #   Sets the runinterval in puppet.conf
+# @param show_diff [Boolean] Default: false
+#   Sets the show_diff parameter in puppet.conf
 # @param splay [Boolean] Default: false
 #   Sets the splay parameter in puppet.conf
 # @param splaylimit [String] Default: undef
@@ -103,6 +107,7 @@ class puppet (
   $agent_cron_min                 = 'two_times_an_hour',
   $agent_version                  = 'installed',
   $ca_server                      = undef,
+  $ca_port                        = undef,
   $cfacter                        = false,
   $collection                     = undef,
   $custom_facts                   = undef,
@@ -125,6 +130,7 @@ class puppet (
   $puppet_version                 = 'installed',
   $reports                        = true,
   $runinterval                    = '30m',
+  $show_diff                      = false,
   $splay                          = false,
   $splaylimit                     = undef,
   $structured_facts               = false,
@@ -144,6 +150,7 @@ class puppet (
     $manage_etc_facter_facts_d,
     $manage_repos,
     $reports,
+    $show_diff,
     $splay,
     $structured_facts,
   )
@@ -151,6 +158,7 @@ class puppet (
   validate_string(
     $agent_version,
     $ca_server,
+    $ca_port,
     $collection,
     $environment,
     $facter_version,
@@ -223,7 +231,7 @@ class puppet (
     file { $facterbasepath:
       ensure => directory,
       owner  => 'root',
-      group  => 'root',
+      group  => $::puppet::defaults::puppet_group,
       mode   => '0755',
     }
   }
@@ -232,7 +240,7 @@ class puppet (
     file { "${facterbasepath}/facts.d":
       ensure => directory,
       owner  => 'root',
-      group  => 'root',
+      group  => $::puppet::defaults::puppet_group,
       mode   => '0755',
     }
   }

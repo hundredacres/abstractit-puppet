@@ -80,11 +80,27 @@ describe 'puppet::master::config', :type => :class do
         it 'should create the \'puppet clean reports\' cronjob' do
           should contain_cron('puppet clean reports').with({
             'name'    => "puppet clean reports",
-            'command' => "cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f",
+            'command' => "if test -x #{reports_dir}; then cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f; fi",
             'user'    => "root",
             'hour'    => "21",
             'minute'  => "22",
             'weekday' => "0"
+          })
+        end
+        it 'should not set the external_nodes param via an ini_setting' do
+          should contain_ini_setting('master external_nodes').with({
+            'ensure'  => 'absent',
+            'path'    => "#{confdir}/puppet.conf",
+            'section' => 'master',
+            'setting' => 'external_nodes',
+          })
+        end
+        it 'should not set the node_terminus param via an ini_setting' do
+          should contain_ini_setting('master node_terminus').with({
+            'ensure'  => 'absent',
+            'path'    => "#{confdir}/puppet.conf",
+            'section' => 'master',
+            'setting' => 'node_terminus',
           })
         end
       end#no params
@@ -234,7 +250,7 @@ describe 'puppet::master::config', :type => :class do
         it 'should create the \'puppet clean reports\' cronjob with custom mtime' do
           should contain_cron('puppet clean reports').with({
             :name    => "puppet clean reports",
-            :command => "cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +33 -print0 | xargs -0 -n50 /bin/rm -f",
+            :command => "if test -x #{reports_dir}; then cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +33 -print0 | xargs -0 -n50 /bin/rm -f; fi",
             :user    => "root",
             :hour    => "21",
             :minute  => "22",
@@ -248,7 +264,7 @@ describe 'puppet::master::config', :type => :class do
         it 'should create the \'puppet clean reports\' cronjob with custom hour' do
           should contain_cron('puppet clean reports').with({
             :name    => "puppet clean reports",
-            :command => "cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f",
+            :command => "if test -x #{reports_dir}; then cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f; fi",
             :user    => "root",
             :hour    => "12",
             :minute  => "22",
@@ -262,7 +278,7 @@ describe 'puppet::master::config', :type => :class do
         it 'should create the \'puppet clean reports\' cronjob with custom minute' do
           should contain_cron('puppet clean reports').with({
             :name    => "puppet clean reports",
-            :command => "cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f",
+            :command => "if test -x #{reports_dir}; then cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f; fi",
             :user    => "root",
             :hour    => "21",
             :minute  => "59",
@@ -276,7 +292,7 @@ describe 'puppet::master::config', :type => :class do
         it 'should create the \'puppet clean reports\' cronjob with custom weekday' do
           should contain_cron('puppet clean reports').with({
             :name    => "puppet clean reports",
-            :command => "cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f",
+            :command => "if test -x #{reports_dir}; then cd #{reports_dir} && find . -type f -name \\*.yaml -mtime +7 -print0 | xargs -0 -n50 /bin/rm -f; fi",
             :user    => "root",
             :hour    => "21",
             :minute  => "22",
@@ -336,6 +352,28 @@ describe 'puppet::master::config', :type => :class do
           })
         end
       end # future_parser
+
+      context 'when the $::puppet::master::external_nodes and $::puppet::master::node_terminus variables are set' do
+        let(:pre_condition) {"class{'::puppet::master': external_nodes => '/etc/puppetlabs/puppet/node.rb', node_terminus => 'exec'}"}
+        it 'should update the external_nodes param via an ini_setting' do
+          should contain_ini_setting('master external_nodes').with({
+            'ensure'  => 'present',
+            'path'    => "#{confdir}/puppet.conf",
+            'section' => 'master',
+            'setting' => 'external_nodes',
+            'value'   => '/etc/puppetlabs/puppet/node.rb'
+          })
+        end
+        it 'should update the node_terminus param via an ini_setting' do
+          should contain_ini_setting('master node_terminus').with({
+            'ensure'  => 'present',
+            'path'    => "#{confdir}/puppet.conf",
+            'section' => 'master',
+            'setting' => 'node_terminus',
+            'value'   => 'exec'
+          })
+        end
+      end # external_nodes
 
     end
   end

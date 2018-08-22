@@ -8,6 +8,7 @@ class puppet::config {
   $codedir                        = $::puppet::defaults::codedir
   $sysconfigdir                   = $::puppet::defaults::sysconfigdir
   $ca_server                      = $::puppet::ca_server
+  $ca_port                        = $::puppet::ca_port
   $cfacter                        = $::puppet::cfacter
   $environment                    = $::puppet::environment
   $logdest                        = $::puppet::logdest
@@ -16,6 +17,7 @@ class puppet::config {
   $puppet_server_port             = $::puppet::puppet_server_port
   $reports                        = $::puppet::reports
   $runinterval                    = $::puppet::runinterval
+  $show_diff                      = $::puppet::show_diff
   $splay                          = $::puppet::splay
   $splaylimit                     = $::puppet::splaylimit
   $structured_facts               = $::puppet::structured_facts
@@ -55,6 +57,12 @@ class puppet::config {
     $_ensure_ca_server = 'absent'
   }
 
+  if ($ca_port) {
+    $_ensure_ca_port = 'present'
+  } else {
+    $_ensure_ca_port = 'absent'
+  }
+
   if ($pluginsource) {
     $_ensure_pluginsource = 'present'
   } else {
@@ -67,10 +75,19 @@ class puppet::config {
     $_ensure_pluginfactsource = 'absent'
   }
 
+  ini_setting { 'puppet client server agent':
+    ensure  => absent,
+    path    => "${confdir}/puppet.conf",
+    section => 'agent',
+    setting => 'server',
+    value   => $puppet_server,
+    require => Class['puppet::install'],
+  }
+
   ini_setting { 'puppet client server':
     ensure  => $_ensure_puppet_server,
     path    => "${confdir}/puppet.conf",
-    section => 'agent',
+    section => 'main',
     setting => 'server',
     value   => $puppet_server,
     require => Class['puppet::install'],
@@ -128,6 +145,15 @@ class puppet::config {
     require => Class['puppet::install'],
   }
 
+  ini_setting { 'puppet ca_port':
+    ensure  => $_ensure_ca_port,
+    path    => "${confdir}/puppet.conf",
+    section => 'main',
+    setting => 'ca_port',
+    value   => $ca_port,
+    require => Class['puppet::install'],
+  }
+
   ini_setting { 'puppet client cfacter':
     ensure  => present,
     path    => "${confdir}/puppet.conf",
@@ -152,6 +178,15 @@ class puppet::config {
     section => 'agent',
     setting => 'runinterval',
     value   => $runinterval,
+    require => Class['puppet::install'],
+  }
+
+  ini_setting { 'puppet client show_diff':
+    ensure  => present,
+    path    => "${confdir}/puppet.conf",
+    section => 'agent',
+    setting => 'show_diff',
+    value   => $show_diff,
     require => Class['puppet::install'],
   }
 
