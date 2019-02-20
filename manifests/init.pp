@@ -7,6 +7,8 @@
 #
 # @param allinone [Boolean] Default: false
 #   Whether to use the new collections
+# @param agent_cron_command [String] Default: '${bin_dir}/puppet agent --no-daemonize --onetime'
+#   The command to run the agent cron with.
 # @param agent_cron_hour [String] Default: '*'
 #   The hour to run the agent cron. Valid values are `0-23`
 # @param agent_cron_min [String/Array] Default: 'two_times_an_hour'
@@ -103,6 +105,7 @@
 
 class puppet (
   $allinone                       = false,
+  $agent_cron_command             = "${bin_dir}/puppet agent --no-daemonize --onetime",
   $agent_cron_hour                = '*',
   $agent_cron_min                 = 'two_times_an_hour',
   $agent_version                  = 'installed',
@@ -156,6 +159,7 @@ class puppet (
   )
 
   validate_string(
+    $agent_cron_command,
     $agent_version,
     $ca_server,
     $ca_port,
