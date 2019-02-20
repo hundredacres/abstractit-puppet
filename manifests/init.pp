@@ -147,6 +147,7 @@ class puppet (
 ) {
   #input validation
   validate_bool(
+    $agent_noop,
     $allinone,
     $cfacter,
     $enable_devel_repo,
