@@ -4,6 +4,7 @@
 class puppet::config {
   include ::puppet
   include ::puppet::defaults
+  $agent_noop                     = $::puppet::agent_noop
   $confdir                        = $::puppet::defaults::confdir
   $codedir                        = $::puppet::defaults::codedir
   $sysconfigdir                   = $::puppet::defaults::sysconfigdir
