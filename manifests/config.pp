@@ -172,6 +172,15 @@ class puppet::config {
     require => Class['puppet::install'],
   }
 
+  ini_setting { 'puppet client noop':
+    ensure  => present,
+    path    => "${confdir}/puppet.conf",
+    section => 'agent',
+    setting => 'noop',
+    value   => $agent_noop,
+    require => Class['puppet::install'],
+  }
+
   ini_setting { 'puppet client runinterval':
     ensure  => present,
     path    => "${confdir}/puppet.conf",
