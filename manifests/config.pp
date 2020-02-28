@@ -4,6 +4,7 @@
 class puppet::config {
   include ::puppet
   include ::puppet::defaults
+  $agent_noop                     = $::puppet::agent_noop
   $confdir                        = $::puppet::defaults::confdir
   $codedir                        = $::puppet::defaults::codedir
   $sysconfigdir                   = $::puppet::defaults::sysconfigdir
@@ -169,6 +170,15 @@ class puppet::config {
     section => 'agent',
     setting => 'environment',
     value   => $environment,
+    require => Class['puppet::install'],
+  }
+
+  ini_setting { 'puppet client noop':
+    ensure  => present,
+    path    => "${confdir}/puppet.conf",
+    section => 'agent',
+    setting => 'noop',
+    value   => $agent_noop,
     require => Class['puppet::install'],
   }
 
