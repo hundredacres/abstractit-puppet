@@ -24,6 +24,14 @@ class puppet::repo::yum {
         gpgcheck => '1',
         gpgkey   => 'https://yum.puppetlabs.com/RPM-GPG-KEY-puppet',
       }
+    } elsif ($::puppet::puppet_release != undef ) {
+      yumrepo { "puppet${::puppet::puppet_release}":
+        descr    => "Puppet ${::puppet::puppet_release} Repository el ${::operatingsystemmajrelease} - \$basearch",
+        baseurl  => "http://yum.puppetlabs.com/puppet${::puppet::puppet_release}/el/${::operatingsystemmajrelease}/\$basearch",
+        enabled  => '1',
+        gpgcheck => '1',
+        gpgkey   => 'https://yum.puppetlabs.com/RPM-GPG-KEY-puppet',
+      }
     } else {
 
       yumrepo { 'puppetlabs-products':

@@ -68,6 +68,8 @@
 # @param preferred_serialization_format [String] Default: 'pson'
 #   The serialization format to use for communication with the puppet server.
 #   WARNING: Setting this to msgpack is experimental! Please enable with care.
+# @param puppet_release [String] Default: 'undef'
+#   The version of puppet-release repo to install
 # @param puppet_version [String] Default: 'installed'
 #   The version of puppet to install
 # @param reports [Boolean] Default: true
@@ -133,6 +135,7 @@ class puppet (
   $manage_repos                   = true,
   $manage_repo_method             = 'files',
   $preferred_serialization_format = 'pson',
+  $puppet_release                 = undef,
   $puppet_server                  = 'puppet',
   $puppet_server_port             = undef,
   $puppet_version                 = 'installed',
@@ -177,6 +180,7 @@ class puppet (
     $hiera_version,
     $logdest,
     $manage_repo_method,
+    $puppet_release,
     $puppet_server,
     $puppet_server_port,
     $puppet_version,
