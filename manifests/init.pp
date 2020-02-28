@@ -102,6 +102,8 @@
 #   useful if you are using SRV records and still have agents on < 4.0 as
 #   pluginfactsync will fail to run using the default value (See
 #   https://tickets.puppetlabs.com/browse/PUP-1035)
+# @param versionlock [Bololean] Default: false
+#   Specifies if package version should be yum versionlocked
 
 class puppet (
   $allinone                       = false,
@@ -141,6 +143,7 @@ class puppet (
   $srv_domain                     = undef,
   $pluginsource                   = undef,
   $pluginfactsource               = undef,
+  $versionlock                    = false,
 ) {
   #input validation
   validate_bool(
@@ -156,6 +159,7 @@ class puppet (
     $show_diff,
     $splay,
     $structured_facts,
+    $versionlock,
   )
 
   validate_string(
